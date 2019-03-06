@@ -1,2 +1,2 @@
 # lthash
-A Java implementation of LtHASH (Lattice Hash), a homomorphic hashing algorithm based on lattice cryptography
+A Java implementation of LtHASH (Lattice Hash), a homomorphic hashing algorithm based on lattice cryptography introduced by Mihir Bellare and Daniele Micciancio in [this paper](https://cseweb.ucsd.edu/~mihir/papers/inchash.pdf). This is a Java porting of the [Facebook Folly Library](https://github.com/facebook/folly/tree/master/folly/experimental/crypto) implementation of the algorithm introduced [here](https://code.fb.com/security/homomorphic-hashing/).
