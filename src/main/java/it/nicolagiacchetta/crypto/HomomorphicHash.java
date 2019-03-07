@@ -1,6 +1,6 @@
 package it.nicolagiacchetta.crypto;
 
-public interface Hash {
+public interface HomomorphicHash {
 
     byte[] add(byte[] input);
 
@@ -14,5 +14,10 @@ public interface Hash {
 
     void reset();
 
-    byte[] getValue();
+    void setChecksum(byte[] checksum);
+
+    byte[] getChecksum();
+
+    boolean equals(byte[] otherChecksum);
+
 }

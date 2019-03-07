@@ -1,10 +1,18 @@
 package it.nicolagiacchetta.crypto;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class Blake2bTest {
+public class Blake2BDigestTest {
+
+    private static Blake2bDigest digest;
+
+    @BeforeClass
+    public static void setUp() {
+        digest = new Blake2bDigest();
+    }
 
     @Test
     public void testSize_0() {
@@ -38,12 +46,12 @@ public class Blake2bTest {
 
     @Test(expected = NullPointerException.class)
     public void testInputNull() {
-        Blake2b.digest(null);
+        digest.hash(null);
     }
 
     private void testSize(String input, int size) {
         try {
-            byte[] output = Blake2b.digest(input.getBytes(), size);
+            byte[] output = digest.hash(input.getBytes(), size);
             assertEquals("Test Size failed for size=" + size + " got " + output.length, size, output.length);
         } catch (Throwable t) {
             System.out.println("\nTest Size failed for size=" + size + ": ");

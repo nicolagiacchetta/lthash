@@ -1,19 +1,26 @@
 package it.nicolagiacchetta.crypto;
 
+import ove.crypto.digest.Blake2b;
+
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public class Blake2b {
 
-    private static final ove.crypto.digest.Blake2b.Digest BLAKE_2_B = ove.crypto.digest.Blake2b.Digest.newInstance();
+public class Blake2bDigest implements Digest {
+
+    private final Blake2b.Digest digest;
 
     private static final int DEFAULT_SIZE = 2048;
 
-    public static byte[] digest(byte[] input) {
-        return digest(input, DEFAULT_SIZE);
+    public Blake2bDigest() {
+        this.digest = Blake2b.Digest.newInstance();
     }
 
-    public static byte[] digest(byte[] input, int size) {
+    public byte[] hash(byte[] input) {
+        return hash(input, DEFAULT_SIZE);
+    }
+
+    public byte[] hash(byte[] input, int size) {
         Objects.requireNonNull(input);
 
         if(size % Byte.SIZE != 0)
@@ -22,12 +29,11 @@ public class Blake2b {
         if(size == 0)
             return new byte[0];
 
-
-        byte[] hash = BLAKE_2_B.digest(input);
-        return adapt(hash, size);
+        byte[] hash = this.digest.digest(input);
+        return adaptSize(hash, size);
     }
 
-    private static byte[] adapt(byte[] input, int size) {
+    private static byte[] adaptSize(byte[] input, int size) {
         if(input.length == size)
             return input;
         byte[] output = new byte[size];
