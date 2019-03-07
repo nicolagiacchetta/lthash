@@ -1,99 +1,71 @@
 package it.nicolagiacchetta.crypto;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.BiFunction;
 
-public class LtHash implements HomomorphicHash {
+public interface LtHash {
 
-    private static final int INT_SIZE_IN_BYTES = Integer.SIZE/Byte.SIZE;
+    /**
+     * Update the incremental checksum by adding the hash of the values provided
+     * in input. The method will take care of hashing the inputs with the chosen
+     * algorithm.
+     *
+     * The method is commutative: add(a, b) = add(b, a).
+     *
+     * @param inputs     the value to be added to the checksum. If inputs is null
+     *                   nothing will change
+     */
+    void add(byte[]... inputs);
 
-    private final Digest digest;
+    /**
+     * Update the incremental checksum by subtracting the hash of the value provided
+     * in input. The method will take care of hashing the input with the chosen
+     * algorithm.
+     *
+     * The method is commutative: remove(a, b) = remove(b, a).
+     *
+     * @param inputs     the value to be subtracted from the checksum. If inputs is null
+     *                   nothing will change
+     */
+    void remove(byte[]... inputs);
 
-    private byte[] checksum;
+    /**
+     * This method has the exact same behaviour as the execution of the sequence of
+     * a add(newValue) and remove(oldValue) operation.
+     *
+     * @param oldValue     the value to be subtracted from the checksum
+     * @param newValue     the value to be added to the checksum
+     */
+    void update(byte[] oldValue, byte[] newValue);
 
-    public LtHash() {
-        this(new Blake2bDigest());
-    }
 
-    public LtHash(Digest digest) {
-        this.digest = digest;
-        reset();
-    }
+    /**
+     * Resets the checksum in this LtHash. This puts the hash into the same
+     * state as if it was just after the instance was constructed.
+     */
+    void reset();
 
-    @Override
-    public byte[] add(byte[] input) {
-        return applyInputToChecksum(input, Integer::sum);
-    }
+    /**
+     * Set the checksum in this LtHash to the value provided in input.
+     *
+     * @param checksum      the new checksum
+     * @throws IllegalArgumentException    if the checksum provided is not valid
+     */
+    void setChecksum(byte[] checksum) throws IllegalArgumentException;
 
-    @Override
-    public byte[] addAll(byte[]... inputs) {
-        for (byte[] input : inputs) {
-            add(input);
-        }
-        return this.checksum;
-    }
+    /**
+     * Returns the current value of the checksum in this LtHash.
+     *
+     * @return the current value of the checksum
+     */
+    byte[] getChecksum();
 
-    @Override
-    public byte[] remove(byte[] input) {
-        return applyInputToChecksum(input, (a, b) -> a-b);
-    }
-
-    @Override
-    public byte[] removeAll(byte[]... inputs) {
-        for (byte[] input : inputs) {
-            remove(input);
-        }
-        return this.checksum;
-    }
-
-    @Override
-    public byte[] update(byte[] oldValue, byte[] newValue) {
-        remove(oldValue);
-        return add(newValue);
-    }
-
-    @Override
-    public void reset() {
-        this.checksum = new byte[2048];
-        ByteBuffer currentWrapper = ByteBuffer.wrap(this.checksum);
-        while(currentWrapper.hasRemaining()) {
-            currentWrapper.putInt(0);
-        }
-    }
-
-    @Override
-    public void setChecksum(byte[] checksum) {
-        this.checksum = checksum;
-    }
-
-    @Override
-    public byte[] getChecksum() {
-        return checksum;
-    }
-
-    @Override
-    public boolean equals(byte[] otherChecksum) {
-        return Arrays.equals(this.checksum, otherChecksum);
-    }
-
-    private byte[] applyInputToChecksum(byte[] input, BiFunction<Integer, Integer, Integer> function) {
-        Objects.requireNonNull(input);
-        byte[] hash = this.digest.hash(input);
-        this.checksum = applyHashToChecksum(hash, function);
-        return this.checksum;
-    }
-
-    private byte[] applyHashToChecksum(byte[] inputHash, BiFunction<Integer, Integer, Integer> function) {
-        ByteBuffer wrapCurrent = ByteBuffer.wrap(this.checksum);
-        ByteBuffer wrapNewHash = ByteBuffer.wrap(inputHash);
-        for(int i=0; i<inputHash.length; i+=INT_SIZE_IN_BYTES) {
-            int sum = function.apply(wrapCurrent.getInt(), wrapNewHash.getInt());
-            wrapCurrent.putInt(i, sum);
-        }
-        wrapCurrent.rewind();
-        return wrapCurrent.array();
-    }
+    /**
+     * Determines whether the checksum provided in input is equal to the
+     * checksum in this LtHash.
+     *
+     * @param otherChecksum     the checksum that we want to compare
+     * @return true if the value of the checksum in input is equal to the checksum
+     *         in this LtHash and false otherwise.
+     */
+    boolean checksumEquals(byte[] otherChecksum);
 
 }

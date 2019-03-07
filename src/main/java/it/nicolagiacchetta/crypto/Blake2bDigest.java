@@ -10,38 +10,42 @@ public class Blake2bDigest implements Digest {
 
     private final Blake2b.Digest digest;
 
-    private static final int DEFAULT_SIZE = 2048;
+    private static final int DEFAULT_OUTPUT_SIZE_IN_BYTES = 2048;
 
     public Blake2bDigest() {
-        this.digest = Blake2b.Digest.newInstance();
+        this(Blake2b.Spec.max_digest_bytes);
+    }
+
+    public Blake2bDigest(int digestLenght) {
+        this.digest = Blake2b.Digest.newInstance(digestLenght);
     }
 
     public byte[] hash(byte[] input) {
-        return hash(input, DEFAULT_SIZE);
+        return hash(input, DEFAULT_OUTPUT_SIZE_IN_BYTES);
     }
 
-    public byte[] hash(byte[] input, int size) {
+    public byte[] hash(byte[] input, int outputLenght) {
         Objects.requireNonNull(input);
 
-        if(size % Byte.SIZE != 0)
-            throw new IllegalArgumentException("Illegal argument 'size' must be multiple of " + Byte.SIZE);
+        if(outputLenght % Byte.SIZE != 0)
+            throw new IllegalArgumentException("Illegal argument 'outputLenght' must be multiple of " + Byte.SIZE);
 
-        if(size == 0)
+        if(outputLenght == 0)
             return new byte[0];
 
         byte[] hash = this.digest.digest(input);
-        return adaptSize(hash, size);
+        return adaptSize(hash, outputLenght);
     }
 
-    private static byte[] adaptSize(byte[] input, int size) {
-        if(input.length == size)
+    private static byte[] adaptSize(byte[] input, int outputLenght) {
+        if(input.length == outputLenght)
             return input;
-        byte[] output = new byte[size];
+        byte[] output = new byte[outputLenght];
         ByteBuffer wrap = ByteBuffer.wrap(output);
         while(wrap.hasRemaining()) {
             wrap.putInt(0);
         }
-        System.arraycopy(input, 0, output,0, Math.min(input.length, size));
+        System.arraycopy(input, 0, output,0, Math.min(input.length, outputLenght));
         return output;
     }
 }
