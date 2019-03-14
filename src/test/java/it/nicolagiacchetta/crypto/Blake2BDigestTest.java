@@ -1,18 +1,12 @@
 package it.nicolagiacchetta.crypto;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class Blake2BDigestTest {
 
-    private static Blake2bDigest digest;
-
-    @BeforeClass
-    public static void setUp() {
-        digest = new Blake2bDigest();
-    }
+    private Blake2bDigest digest = new Blake2bDigest();
 
     @Test
     public void testSize_0() {

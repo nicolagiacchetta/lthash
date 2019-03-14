@@ -11,7 +11,7 @@ public interface LtHash {
      * The method is commutative: add(a, b) = add(b, a).
      *
      * @param inputs     the value to be added to the checksum. If inputs is null
-     *                   nothing will change
+     *                   the state of the checksum will not change
      */
     void add(byte[]... inputs);
 
@@ -23,7 +23,7 @@ public interface LtHash {
      * The method is commutative: remove(a, b) = remove(b, a).
      *
      * @param inputs     the value to be subtracted from the checksum. If inputs is null
-     *                   nothing will change
+     *                   the state of the checksum will not change
      */
     void remove(byte[]... inputs);
 

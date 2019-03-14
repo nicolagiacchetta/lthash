@@ -1,16 +1,25 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'com.github.johnrengelman.shadow'
+
 
 group 'it.nicolagiacchetta.crypto'
-version = dateText();
+version = dateText()
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 buildscript {
     repositories {
+
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
     }
 }
 
@@ -20,11 +29,14 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile group: "org.slf4j", name: "slf4j-api", version: "$versionOrgSlf4j"
-    compile group: "org.slf4j", name: "slf4j-log4j12", version: "$versionOrgSlf4j"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile "org.mockito:mockito-core:$versionMockitoCore"
+}
+
+shadowJar {
+    baseName = 'lthash'
+    classifier = null
+    version = version
 }
 
 def dateText() {
